@@ -59,6 +59,10 @@ const Cart = ({ cart, updateQty, setCart }) => {
 
   const handlePlaceOrder = () => {
     const cartProducts = getCartProducts();
+    if (!creditCard) {
+      alert("Please select the credit card number");
+      return;
+    }
     const obj = {
       userId: users[0].id,
       creditCard: creditCard,
