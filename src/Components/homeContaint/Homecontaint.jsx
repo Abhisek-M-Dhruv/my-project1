@@ -9,41 +9,48 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-// import { Add, Remove } from "@mui/icons-material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import products from "../../db/db.json";
-
-// const products = [
-//   {
-//     id: 1,
-//     title: "8 Piece Fried Chicken Bucket",
-//     imgURL:
-//       "https://orderserv-kfc-assets.yum.com/15895bb59f7b4bb588ee933f8cd5344a/images/items/xl/A-33785-0.jpg?ver=14.71",
-//     mrp: 549,
-//     detail:
-//       "Eight pieces of KFC's Original Recipe fried chicken, served in a bucket.",
-//   },
-//   {
-//     id: 2,
-//     title: "Spicy Chicken Sandwich",
-//     imgURL:
-//       "https://images.ctfassets.net/wtodlh47qxpt/4AcPJzGNNxfXiF1rWvlydj/2a8548a717ff678fbfb0d881b7367ba8/KFC-Gold-Burger-White-Category-23MAY_4.jpg?fm=webp&fit=fill",
-//     mrp: 179,
-//     detail:
-//       "Crispy spicy chicken fillet with mayonnaise and lettuce, served on a toasted bun.",
-//   },
-//   {
-//     id: 3,
-//     title: "Pepsi",
-//     imgURL:
-//       "https://images.ctfassets.net/wtodlh47qxpt/45FYhHRpRebHUC0wNGpTcU/810af36ba1125bc6e36e366f8b52ee0b/D-K485-prod?h=600&w=800&fm=webp&fit=fill",
-//     mrp: 60,
-//     detail: "Chilled carbonated Pepsi soft drink.",
-//   },
-// ];
+// import products from "../../db/db.json";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const Homecontaint = ({ cart, addToCart, updateQty }) => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(
+          "https://68a559122a3deed2960d23c4.mockapi.io/inventories"
+        );
+        setProducts(res.data);
+      } catch (err) {
+        setError("Failed to load products");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading)
+    return (
+      <Typography align="center" sx={{ p: 3 }}>
+        Loading...
+      </Typography>
+    );
+  if (error)
+    return (
+      <Typography align="center" sx={{ p: 3, color: "red" }}>
+        {error}
+      </Typography>
+    );
+
   return (
     <Grid container spacing={3} sx={{ p: 3 }}>
       {products.map((item) => {
@@ -66,29 +73,15 @@ const Homecontaint = ({ cart, addToCart, updateQty }) => {
                 component="img"
                 height="180"
                 image={item.imgURL}
-                alt={item.title}
+                alt={item.item}
                 sx={{ objectFit: "cover" }}
               />
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="subtitle1" component="div">
-                  {item.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    height: 50,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                  }}
-                >
-                  {item.detail}
+                  {item.item}
                 </Typography>
                 <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
-                  ₹{item.mrp}
+                  ₹{item.price}
                 </Typography>
               </CardContent>
               <CardActions>
@@ -99,8 +92,9 @@ const Homecontaint = ({ cart, addToCart, updateQty }) => {
                     color="primary"
                     onClick={() => addToCart(item)}
                     fullWidth
+                    disabled={item.currentCount <= 0}
                   >
-                    Add to Cart
+                    {item.currentCount <= 0 ? "Out of Stock" : "Add to Cart"}
                   </Button>
                 ) : (
                   <Box
@@ -120,7 +114,12 @@ const Homecontaint = ({ cart, addToCart, updateQty }) => {
                     <Typography>{inCart.qty}</Typography>
                     <IconButton
                       color="primary"
-                      onClick={() => updateQty(item.id, 1)}
+                      onClick={() => {
+                        if (inCart.qty < item.currentCount) {
+                          updateQty(item.id, 1);
+                        }
+                      }}
+                      disabled={inCart.qty >= item.currentCount}
                     >
                       <AddIcon />
                     </IconButton>

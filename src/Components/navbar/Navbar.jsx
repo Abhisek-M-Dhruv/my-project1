@@ -2,12 +2,16 @@
 import React, { useEffect, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import Box from "@mui/material/Box";
+// import Box from "@mui/material/Box";
 import Badge from "@mui/material/Badge";
-import IconButton from "@mui/material/IconButton";
+// import IconButton from "@mui/material/IconButton";
 import { Link as RouterLink } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 import { keyframes } from "@emotion/react";
 import { styled } from "@mui/material/styles";
+import { Box, IconButton, Button, Divider } from "@mui/material";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 
 // Define shake animation
 const shake = keyframes`
@@ -38,7 +42,7 @@ export default function Navbar({ cartItemCount = 0 }) {
 
   return (
     <AppBar position="static" color="default" elevation={1}>
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+      <Toolbar>
         {/* Left: Logo */}
         <Box
           component={RouterLink}
@@ -52,7 +56,14 @@ export default function Navbar({ cartItemCount = 0 }) {
             sx={{ height: 40 }}
           />
         </Box>
-
+        <Box sx={{ flexGrow: 1 }}>
+          <Button color="inherit" component={Link} to="/">
+            Menu
+          </Button>
+        </Box>
+        <AccountCircle />
+        &nbsp; &nbsp;
+        <Divider orientation="vertical" flexItem />
         {/* Cart with shaking badge */}
         <IconButton component={RouterLink} to="/cart" color="inherit">
           <AnimatedBadge

@@ -50,7 +50,7 @@ export const MainRoutes = () => {
         </Route>
         <Route
           path="/cart"
-          element={<Cart cart={cart} updateQty={updateQty} />}
+          element={<Cart cart={cart} updateQty={updateQty} setCart={setCart} />}
         ></Route>
       </Routes>
     </>
